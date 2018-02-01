@@ -10,7 +10,7 @@ TEST_SRCs := $(basename $(notdir $(wildcard ./tests/*.c)))
 TEST_RAW_LLs := $(subst .c,.ll,$(wildcard ./tests/*.c))
 TEST_OPT_LLs := $(addprefix ./tests/,$(addsuffix -opt.ll,$(TEST_SRCs)))
 
-all: $(TEST_OPT_LLs) $(TEST_RAW_LLs) 
+all: $(TEST_OPT_LLs) $(TEST_RAW_LLs)
 
 ./tests/%.ll: ./tests/%.bc
 	llvm-dis $< -o=$@

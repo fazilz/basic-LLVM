@@ -115,4 +115,4 @@ public:
     }
 };
 
-    char LocalOpts::ID = 0; RegisterPass < LocalOpts > X ("LocalOpts", "CSCD70: LocalOpts Information"); /* annoymous */ }
+    char LocalOpts::ID = 0; RegisterPass < LocalOpts > X ("local-opts", "CSCD70: LocalOpts Information"); /* annoymous */ }
