@@ -3,6 +3,7 @@
 #include "llvm/IR/Module.h"
 #include "llvm/Support/raw_ostream.h"
 #include <map>
+#include <string.h>
 
 using namespace llvm;
 
@@ -11,49 +12,61 @@ class FunctionInfo : public ModulePass
 {
 private:
 
-	bool runOnBasicBlock(BasicBlock & BB)
-	{
-		// @TODO Please implement this.
+    std::map<std::string, int> ins_count;
+    std::map<std::string, int> calls_count;
+    bool runOnBasicBlock(BasicBlock & BB)
+    {
+        // @TODO Please implement this.
+        for(BasicBlock::iterator iter = BB.begin(); iter != M.end(); ++iter)
+        {
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	bool runOnFunction(Function & F)
-	{
-		// @TODO Please implement this.
-    outs() << F.getName() <<" "<< F.arg_size() <<" " << F.size() <<'\n';
-    
-		return false;
-	}
+    bool runOnFunction(Function & F)
+    {
+        // @TODO Please implement this.
+        std::string name = F.getName();
+        ins_count[name] = 0;
+        for(BasicBlock &bb : F)
+        {
+            ins_count[name] += bb.size();
+            runOnBasicBlock(bb);
+        }
+        outs() << name <<" "<< F.arg_size() <<" 0 " << F.size() << ins_count[name] << '\n';
+        return false;
+    }
 
 public:
-	static char ID;
+static char ID;
 
-	FunctionInfo() : ModulePass(ID)
-	{}
+FunctionInfo() : ModulePass(ID)
+{}
 
-	~FunctionInfo()
-	{}
+~FunctionInfo()
+{}
 
-  	// We don't modify the program, so we preserve all analysis.
-	virtual void getAnalysisUsage(AnalysisUsage & AU) const
-	{
-		AU.setPreservesAll();
-	}
+// We don't modify the program, so we preserve all analysis.
+virtual void getAnalysisUsage(AnalysisUsage & AU) const
+{
+AU.setPreservesAll();
+}
 
-	virtual bool runOnModule(Module & M)
-	{
-		outs() << "Name #Args #Calls #Blocks #Insts" << "\n";
 
-		for (Module::iterator iter = M.begin(); iter != M.end(); ++iter)
-		{
-			runOnFunction(*iter);
-		}
+virtual bool runOnModule(Module & M)
+{
+outs() << "Name #Args #Calls #Blocks #Insts" << "\n";
 
-		// @TODO Please implement this.
+for (Module::iterator iter = M.begin(); iter != M.end(); ++iter)
+{
+    runOnFunction(*iter);
+}
 
-		return false;
-	}
+// @TODO Please implement this.
+
+return false;
+}
 };
 
 char FunctionInfo::ID = 0; RegisterPass < FunctionInfo > X ("function-info", "CSCD70: Functions Information"); /* annoymous */ }
