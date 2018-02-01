@@ -1,7 +1,9 @@
 #include "llvm/Pass.h"
 #include "llvm/IR/Function.h"
 #include "llvm/IR/Module.h"
+#include "llvm/IR/CallInst.h"
 #include "llvm/Support/raw_ostream.h"
+#include "llvm/Support/Casting.h"
 #include <map>
 #include <string.h>
 
@@ -22,7 +24,7 @@ private:
         {
             if(isa<CallInst>(ins))
             {
-                std::string name = cast<CallInst>(I).getCalledFunction().getName();
+                std::string name = cast<CallInst>(ins).getCalledFunction().getName();
                 calls_count[name] += 1;
             }
         }
