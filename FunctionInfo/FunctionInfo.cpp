@@ -23,7 +23,7 @@ private:
         {
             if(isa<CallInst>(ins))
             {
-                std::string name = cast<CallInst>(ins).getCalledFunction().getName();
+                std::string name = cast<CallInst>(ins)->getCalledFunction().getName();
                 calls_count[name] += 1;
             }
         }
