@@ -16,9 +16,15 @@ private:
     std::map<std::string, int> calls_count;
     bool runOnBasicBlock(BasicBlock & BB)
     {
-        // @TODO Please implement this.
-        for(BasicBlock::iterator iter = BB.begin(); iter != BB.end(); ++iter)
+        // loop through every instruction and check if its a call
+        // if it is then increment the correct datastructure.
+        for(Instruction &ins : BB)
         {
+            if(isa<CallInst>(ins))
+            {
+                std::string name = cast<CallInst>(I).getCalledFunction().getName();
+                calls_count[name] += 1;
+            }
         }
 
         return false;
@@ -26,47 +32,52 @@ private:
 
     bool runOnFunction(Function & F)
     {
-        // @TODO Please implement this.
         std::string name = F.getName();
         ins_count[name] = 0;
+        calls_count[name] = 0;
         for(BasicBlock &bb : F)
         {
+            // bb.size() == # of instructions in a basic block
             ins_count[name] += bb.size();
             runOnBasicBlock(bb);
         }
-        outs() << name <<" "<< F.arg_size() <<" 0 " << F.size() << ins_count[name] << '\n';
+        // F.size() == # of instructions in a Function
+        outs() << name << " "<< F.arg_size() << " " << calls_count[name] << " "
+               << F.size() << " " << ins_count[name] << '\n';
         return false;
     }
 
 public:
-static char ID;
+    static char ID;
 
-FunctionInfo() : ModulePass(ID)
-{}
+    FunctionInfo() : ModulePass(ID)
+    {}
 
-~FunctionInfo()
-{}
+    ~FunctionInfo()
+    {}
 
-// We don't modify the program, so we preserve all analysis.
-virtual void getAnalysisUsage(AnalysisUsage & AU) const
-{
-AU.setPreservesAll();
-}
+    // We don't modify the program, so we preserve all analysis.
+    virtual void getAnalysisUsage(AnalysisUsage & AU) const
+    {
+        AU.setPreservesAll(); += 1;
+    }
 
 
-virtual bool runOnModule(Module & M)
-{
-outs() << "Name #Args #Calls #Blocks #Insts" << "\n";
+    virtual bool runOnModule(Module & M)
+    {
+        outs() << "Name #Args #Calls #Blocks #Insts" << "\n";
 
-for (Module::iterator iter = M.begin(); iter != M.end(); ++iter)
-{
-    runOnFunction(*iter);
-}
+        for (Module::iterator iter = M.begin(); iter != M.end(); ++iter)
+        {
+            calls_count[*iter.getName()] = 0;
+            ins_count[*iter.getName()] = 0;
+            runOnFunction(*iter);
+        }
 
-// @TODO Please implement this.
+        // @TODO Please implement this.
 
-return false;
-}
+        return false;
+    }
 };
 
 char FunctionInfo::ID = 0; RegisterPass < FunctionInfo > X ("function-info", "CSCD70: Functions Information"); /* annoymous */ }
