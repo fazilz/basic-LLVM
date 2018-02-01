@@ -12,6 +12,8 @@ int algebraic (int a, int b)
 int strength (int a, int b)
 {
     int result = 0;
+    int c = a << 2;
+    int d = a >> 2;
     result += a * 2;
     result += a * 3;
     result += a * 8;
