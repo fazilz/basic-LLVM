@@ -20,16 +20,14 @@ private:
     {
         // loop through every instruction and check if its a call
         // if it is then increment the correct datastructure.
-        for(Instruction &ins : BB)
+        for(BasicBlock::Iterator iter = BB.begin(); iter != BB.end(); ++iter)
         {
-            if(isa<CallInst>(ins))
+            if(auto *call = dyn_cast<CallInst>(*iter))
             {
-		auto call = cast<CallInst>(ins);
-                std::string name = call.getCalledFunction()->getName();
+                std::string name = call->getCalledFunction()->getName();
                 calls_count[name] += 1;
             }
         }
-
         return false;
     }
 
