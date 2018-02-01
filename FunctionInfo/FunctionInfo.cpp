@@ -17,7 +17,7 @@ private:
     bool runOnBasicBlock(BasicBlock & BB)
     {
         // @TODO Please implement this.
-        for(BasicBlock::iterator iter = BB.begin(); iter != M.end(); ++iter)
+        for(BasicBlock::iterator iter = BB.begin(); iter != BB.end(); ++iter)
         {
         }
 
