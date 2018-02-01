@@ -1,6 +1,7 @@
 #include "llvm/Pass.h"
 #include "llvm/IR/Function.h"
 #include "llvm/IR/Module.h"
+#include "llvm/IR/Instructions.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Support/Casting.h"
 #include <map>
@@ -21,9 +22,10 @@ private:
         // if it is then increment the correct datastructure.
         for(Instruction &ins : BB)
         {
-            if(auto *call = dyn_cast<CallInst>(ins))
+            if(isa<CallInst>(ins))
             {
-                std::string name = call->getCalledFunction().getName();
+		auto call = cast<CallInst>(ins);
+                std::string name = call.getCalledFunction()->getName();
                 calls_count[name] += 1;
             }
         }
@@ -60,7 +62,7 @@ public:
     // We don't modify the program, so we preserve all analysis.
     virtual void getAnalysisUsage(AnalysisUsage & AU) const
     {
-        AU.setPreservesAll(); += 1;
+        AU.setPreservesAll();
     }
 
 
