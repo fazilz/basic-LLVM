@@ -21,9 +21,9 @@ private:
         // if it is then increment the correct datastructure.
         for(Instruction &ins : BB)
         {
-            if(isa<CallInst>(ins))
+            if(auto *call = dyn_cast<CallInst>(ins))
             {
-                std::string name = cast<CallInst>(ins)->getCalledFunction().getName();
+                std::string name = call->getCalledFunction().getName();
                 calls_count[name] += 1;
             }
         }
