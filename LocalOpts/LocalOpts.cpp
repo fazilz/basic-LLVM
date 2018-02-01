@@ -20,7 +20,7 @@ private:
         int old = strength_opt_count;
         // check if the operand in a multiple of 2
         // switch to right or left shift.
-        for(BasicBlock::Iterator iter = BB.begin(); iter != BB.end(); ++iter)
+        for(BasicBlock::iterator iter = BB.begin(); iter != BB.end(); ++iter)
         {
             Instruction *ins = &(*iter);
             if(auto call = dyn_cast<BinaryOperator>(ins))
@@ -104,8 +104,6 @@ public:
 
         for (Module::iterator iter = M.begin(); iter != M.end(); ++iter)
         {
-            calls_count[(*iter).getName()] = 0;
-            ins_count[(*iter).getName()] = 0;
             runOnFunction(*iter);
         }
 
