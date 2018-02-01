@@ -10,51 +10,86 @@
 using namespace llvm;
 
 namespace {
-class AlgbPass : public ModulePass
+class LocalOpts : public ModulePass
 {
 private:
+    int strength_opt_count = 0;
 
-    std::map<std::string, int> ins_count;
-    std::map<std::string, int> calls_count;
-    bool runOnBasicBlock(BasicBlock & BB)
+    bool strength_opt(BasicBlock &BB)
     {
-        // loop through every instruction and check if its a call
-        // if it is then increment the correct datastructure.
+        int old = strength_opt_count;
+        // check if the operand in a multiple of 2
+        // switch to right or left shift.
         for(BasicBlock::Iterator iter = BB.begin(); iter != BB.end(); ++iter)
         {
-            if(auto *call = dyn_cast<CallInst>(*iter))
+            Instruction *ins = &(*iter);
+            if(auto call = dyn_cast<BinaryOperator>(ins))
             {
-                std::string name = call->getCalledFunction()->getName();
-                calls_count[name] += 1;
+                std::string ins_name = ins->getOpcodeName();
+                // check if instruction is a mult or a div
+                int operand_1 = ins->getOperand(0);
+                int operand_2 = ins->getOperand(1);
+                if(ins_name.compare("mul"))
+                {
+                    if (operand_1%2 == 0)
+                    {
+                        int divisor = (operand_1 / 2)-1;
+                        Instruction *new_inst = BinaryOperator::Create(Instruction::Shl, operand_2, divisor);
+                        ins->replaceAllUsesWith(new_inst);
+                        strength_opt_count += 1;
+                    }
+                    else if (operand_2%2 == 0)
+                    {
+                        int divisor = (operand_2 / 2)-1;
+                        Instruction *new_inst = BinaryOperator::Create(Instruction::Shl, operand_1, divisor);
+                        ins->replaceAllUsesWith(new_inst);
+                        strength_opt_count += 1;
+                    }
+                }
+                else if (ins_name.compare("div"))
+                {
+                    if (operand_2%2 == 0)
+                    {
+                        int divisor = (operand_2 / 2)-1;
+                        Instruction *new_inst = BinaryOperator::Create(Instruction::AShr, operand_1, divisor);
+                        ins->replaceAllUsesWith(new_inst);
+                        strength_opt_count += 1;
+                    }
+                }
             }
+        }
+        if(old == strength_opt_count)
+            return false;
+        return true;
+    }
+
+    bool runOnBasicBlock(BasicBlock & BB)
+    {
+        if(strength_opt(BB))
+        {
+            return true;
         }
         return false;
     }
 
     bool runOnFunction(Function & F)
     {
-        std::string name = F.getName();
-        ins_count[name] = 0;
-        calls_count[name] = 0;
         for(BasicBlock &bb : F)
         {
             // bb.size() == # of instructions in a basic block
-            ins_count[name] += bb.size();
             runOnBasicBlock(bb);
         }
         // F.size() == # of instructions in a Function
-        outs() << name << " "<< F.arg_size() << " " << calls_count[name] << " "
-               << F.size() << " " << ins_count[name] << '\n';
         return false;
     }
 
 public:
     static char ID;
 
-    AlgbPass() : ModulePass(ID)
+    LocalOpts() : ModulePass(ID)
     {}
 
-    ~AlgbPass()
+    ~LocalOpts()
     {}
 
     // We don't modify the program, so we preserve all analysis.
@@ -66,7 +101,6 @@ public:
 
     virtual bool runOnModule(Module & M)
     {
-        outs() << "Name #Args #Calls #Blocks #Insts" << "\n";
 
         for (Module::iterator iter = M.begin(); iter != M.end(); ++iter)
         {
@@ -81,4 +115,4 @@ public:
     }
 };
 
-char FunctionInfo::ID = 0; RegisterPass < FunctionInfo > X ("function-info", "CSCD70: Functions Information"); /* annoymous */ }
+    char LocalOpts::ID = 0; RegisterPass < LocalOpts > X ("LocalOpts", "CSCD70: LocalOpts Information"); /* annoymous */ }

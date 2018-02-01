@@ -9,6 +9,15 @@ int algebraic (int a, int b)
     return result;
 }
 
+/*
+
+  result += a * 2; -> result += a<<1;
+  result += a * 3;
+  result += a * 8; -> result += a<<2;
+  result -= b / 2; -> result -= b>>1;
+  result -= b / 4; -> result -= b>>2;
+  result -= b / 8; -> result -= b>>3;
+ */
 int strength (int a, int b)
 {
     int result = 0;
