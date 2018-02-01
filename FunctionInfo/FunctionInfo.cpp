@@ -69,8 +69,8 @@ public:
 
         for (Module::iterator iter = M.begin(); iter != M.end(); ++iter)
         {
-            calls_count[*iter.getName()] = 0;
-            ins_count[*iter.getName()] = 0;
+            calls_count[(*iter).getName()] = 0;
+            ins_count[(*iter).getName()] = 0;
             runOnFunction(*iter);
         }
 
