@@ -40,7 +40,8 @@ private:
                     if(op1_val.urem(two) == 0)
                     {
                         APInt divisor = (op1_val.udiv(two))-1;
-                        Instruction *new_inst = BinaryOperator::Create(shl, op2, divisor);
+                        Value *val = ConstantInt::get(op1->getType(), divisor.getValue());
+                        Instruction *new_inst = BinaryOperator::Create(shl, op2, val);
                         ReplaceInstWithInst(ins, new_inst);
                         // ins->replaceAllUsesWith(new_inst);
 
@@ -53,7 +54,8 @@ private:
                     if(op2_val.urem(two) == 0)
                     {
                         APInt divisor = (op2_val.udiv(two))-1;
-                        Instruction *new_inst = BinaryOperator::Create(shl, op1, divisor);
+                        Value *val = ConstantInt::get(op2->getType(), divisor.getValue());
+                        Instruction *new_inst = BinaryOperator::Create(shl, op1, val);
                         ReplaceInstWithInst(ins, new_inst);
                         // ins->replaceAllUsesWith(new_inst);
                         strength_opt_count += 1;
@@ -71,7 +73,8 @@ private:
                     if(op2_val.urem(two) == 0)
                     {
                         APInt divisor = (op2_val.udiv(two))-1;
-                        Instruction *new_inst = BinaryOperator::Create(ashr, op1, divisor);
+                        Value *val = ConstantInt::get(op2->getType(), divisor.getValue());
+                        Instruction *new_inst = BinaryOperator::Create(ashr, op1, val);
                         ins->replaceAllUsesWith(new_inst);
                         strength_opt_count += 1;
                     }
