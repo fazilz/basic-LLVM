@@ -5,6 +5,7 @@
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/Constants.h"
 #include "llvm/Bitcode/BitCodes.h"
+#include "llvm/Transforms/Utils/BasicBlockUtils.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Support/Casting.h"
 #include "llvm/ADT/APInt.h"
@@ -31,6 +32,7 @@ private:
             {
                 Value *op1 = ins->getOperand(0);
                 Value *op2 = ins->getOperand(1);
+                Instruction::BinaryOps shl = Shl;
                 const APInt two = 2;
                 if (auto op1Cint = dyn_cast<ConstantInt>(op1))
                 {
@@ -38,7 +40,7 @@ private:
                     if(op1_val.urem(two) == 0)
                     {
                         APInt divisor = (op1_val.udiv(two))-1;
-                        Instruction *new_inst = BinaryOperator::Create(Instruction::Shl, op2, divisor);
+                        Instruction *new_inst = BinaryOperator::Create(shl, op2, divisor);
                         ReplaceInstWithInst(ins, new_inst);
                         // ins->replaceAllUsesWith(new_inst);
 
@@ -51,7 +53,7 @@ private:
                     if(op2_val.urem(two) == 0)
                     {
                         APInt divisor = (op2_val.udiv(two))-1;
-                        Instruction *new_inst = BinaryOperator::Create(Instruction::Shl, op1, divisor);
+                        Instruction *new_inst = BinaryOperator::Create(shl, op1, divisor);
                         ReplaceInstWithInst(ins, new_inst);
                         // ins->replaceAllUsesWith(new_inst);
                         strength_opt_count += 1;
@@ -60,6 +62,7 @@ private:
             }
             else if (ins->getOpcode()== bitc::BINOP_SDIV)
             {
+                Instruction::BinaryOps ashr = AShr;
                 Value *op2 = ins->getOperand(1);
                 const APInt two = 2;
                 else if (auto op2Cint = dyn_cast<ConstantInt>(op2))
@@ -68,7 +71,7 @@ private:
                     if(op2_val.urem(two) == 0)
                     {
                         APInt divisor = (op2_val.udiv(two))-1;
-                        Instruction *new_inst = BinaryOperator::Create(Instruction::AShr, op1, divisor);
+                        Instruction *new_inst = BinaryOperator::Create(ashr, op1, divisor);
                         ins->replaceAllUsesWith(new_inst);
                         strength_opt_count += 1;
                     }
