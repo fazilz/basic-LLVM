@@ -28,7 +28,7 @@ private:
             // check if the operand in a multiple of 2
             // switch to right or left shift.
             Instruction *ins = &(*iter);
-            if(ins->getOpcode == bitc::BINOP_MUL)
+            if(ins->getOpcode == Instruction::BinaryOps::Mul)
             {
                 Value *op1 = ins->getOperand(0);
                 Value *op2 = ins->getOperand(1);
@@ -60,12 +60,12 @@ private:
                     }
                 }
             }
-            else if (ins->getOpcode()== bitc::BINOP_SDIV)
+            else if (ins->getOpcode()== Instruction::BinaryOps::SDiv)
             {
                 Instruction::BinaryOps ashr = Instruction::BinaryOps::AShr;
                 Value *op2 = ins->getOperand(1);
                 const APInt two = 2;
-                else if (auto op2Cint = dyn_cast<ConstantInt>(op2))
+                if (auto op2Cint = dyn_cast<ConstantInt>(op2))
                 {
                     APInt op2_val = op2Cint->getValue();
                     if(op2_val.urem(two) == 0)
