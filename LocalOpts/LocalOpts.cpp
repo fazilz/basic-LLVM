@@ -28,18 +28,18 @@ private:
             // check if the operand in a multiple of 2
             // switch to right or left shift.
             Instruction *ins = &(*iter);
-            if(isa<llvm::MulInst>(ins))
+            std::string name = ins->getOpcodeName();
+            if(name == "Mul")
             {
                 Value *op1 = ins->getOperand(0);
                 Value *op2 = ins->getOperand(1);
                 Instruction::BinaryOps shl = Instruction::BinaryOps::Shl;
-                const APInt two = 2;
                 if (auto op1Cint = dyn_cast<ConstantInt>(op1))
                 {
                     APInt op1_val = op1Cint->getValue();
-                    if(op1_val.urem(two) == 0)
+                    if(op1_val.urem(2) == 0)
                     {
-                        APInt divisor = (op1_val.udiv(two))-1;
+                        APInt divisor = (op1_val.udiv(2))-1;
                         Value *val = ConstantInt::get(op1->getType(), *(divisor.getRawData()));
                         Instruction *new_inst = BinaryOperator::Create(shl, op2, val);
                         ReplaceInstWithInst(ins, new_inst);
@@ -51,9 +51,9 @@ private:
                 else if (auto op2Cint = dyn_cast<ConstantInt>(op2))
                 {
                     APInt op2_val = op2Cint->getValue();
-                    if(op2_val.urem(two) == 0)
+                    if(op2_val.urem(2) == 0)
                     {
-                        APInt divisor = (op2_val.udiv(two))-1;
+                        APInt divisor = (op2_val.udiv(2))-1;
                         Value *val = ConstantInt::get(op2->getType(), *(divisor.getRawData()));
                         Instruction *new_inst = BinaryOperator::Create(shl, op1, val);
                         ReplaceInstWithInst(ins, new_inst);
@@ -62,19 +62,18 @@ private:
                     }
                 }
             }
-            else if (isa<llvm::SDiv>(ins))
+            else if (name == "SDiv")
             {
                 Instruction::BinaryOps ashr = Instruction::BinaryOps::AShr;
                 Value *op2 = ins->getOperand(1);
-                const APInt two = 2;
                 if (auto op2Cint = dyn_cast<ConstantInt>(op2))
                 {
                     APInt op2_val = op2Cint->getValue();
-                    if(op2_val.urem(two) == 0)
+                    if(op2_val.urem(2) == 0)
                     {
-                        APInt divisor = (op2_val.udiv(two))-1;
+                        APInt divisor = (op2_val.udiv(2))-1;
                         Value *val = ConstantInt::get(op2->getType(), *(divisor.getRawData()));
-                        Instruction *new_inst = BinaryOperator::Create(ashr, op1, val);
+                        Instruction *new_inst = BinaryOperator::Create(ashr, op2, val);
                         ins->replaceAllUsesWith(new_inst);
                         strength_opt_count += 1;
                     }
