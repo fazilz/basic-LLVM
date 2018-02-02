@@ -4,6 +4,7 @@
 #include "llvm/IR/Instructions.h"
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/Constants.h"
+#include "llvm/Bitcode/BitCodes.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Support/Casting.h"
 #include "llvm/ADT/APInt.h"
@@ -26,7 +27,7 @@ private:
             // check if the operand in a multiple of 2
             // switch to right or left shift.
             Instruction *ins = &(*iter);
-            if(ins->getOpcode == Instruction::Mul)
+            if(ins->getOpcode == bitc::BINOP_MUL)
             {
                 Value *op1 = ins->getOperand(0);
                 Value *op2 = ins->getOperand(1);
@@ -57,7 +58,7 @@ private:
                     }
                 }
             }
-            else if (ins->getOpcode()==Instruction::SDiv)
+            else if (ins->getOpcode()== bitc::BINOP_SDIV)
             {
                 Value *op2 = ins->getOperand(1);
                 const APInt two = 2;
