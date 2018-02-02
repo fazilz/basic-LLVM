@@ -89,8 +89,10 @@ private:
     {
         if(strength_opt(BB))
         {
-            return true;
+            outs() << "Transformations applied:\n"
+                   << "Strength Reduction" << strength_opt_count << "\n";
         }
+
         return false;
     }
 
