@@ -2,8 +2,10 @@
 #include "llvm/IR/Function.h"
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Instructions.h"
+#include "llvm/IR/DerivedTypes.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Support/Casting.h"
+#include "llvm/ADT/APInt.h"
 #include <map>
 #include <string.h>
 
@@ -18,40 +20,53 @@ private:
     bool strength_opt(BasicBlock &BB)
     {
         int old = strength_opt_count;
-        // check if the operand in a multiple of 2
-        // switch to right or left shift.
         for(BasicBlock::iterator iter = BB.begin(); iter != BB.end(); ++iter)
         {
+            // check if the operand in a multiple of 2
+            // switch to right or left shift.
             Instruction *ins = &(*iter);
-            if(auto call = dyn_cast<BinaryOperator>(ins))
+            if(ins->getOpcode == Instruction::Mul)
             {
-                std::string ins_name = ins->getOpcodeName();
-                // check if instruction is a mult or a div
-                int operand_1 = ins->getOperand(0);
-                int operand_2 = ins->getOperand(1);
-                if(ins_name.compare("mul"))
+                Value *op1 = ins->getOperand(0);
+                Value *op2 = ins->getOperand(1);
+                const APInt two = 2;
+                if (auto op1Cint = dyn_cast<ConstantInt>(op1))
                 {
-                    if (operand_1%2 == 0)
+                    APInt op1_val = op1Cint->getValue();
+                    if(op1_val.urem(two) == 0)
                     {
-                        int divisor = (operand_1 / 2)-1;
-                        Instruction *new_inst = BinaryOperator::Create(Instruction::Shl, operand_2, divisor);
-                        ins->replaceAllUsesWith(new_inst);
-                        strength_opt_count += 1;
-                    }
-                    else if (operand_2%2 == 0)
-                    {
-                        int divisor = (operand_2 / 2)-1;
-                        Instruction *new_inst = BinaryOperator::Create(Instruction::Shl, operand_1, divisor);
-                        ins->replaceAllUsesWith(new_inst);
+                        APInt divisor = (op1_val.udiv(two))-1;
+                        Instruction *new_inst = BinaryOperator::Create(Instruction::Shl, op2, divisor);
+                        ReplaceInstWithInst(ins, new_inst);
+                        // ins->replaceAllUsesWith(new_inst);
+
                         strength_opt_count += 1;
                     }
                 }
-                else if (ins_name.compare("div"))
+                else if (auto op2Cint = dyn_cast<ConstantInt>(op2))
                 {
-                    if (operand_2%2 == 0)
+                    APInt op2_val = op2Cint->getValue();
+                    if(op2_val.urem(two) == 0)
                     {
-                        int divisor = (operand_2 / 2)-1;
-                        Instruction *new_inst = BinaryOperator::Create(Instruction::AShr, operand_1, divisor);
+                        APInt divisor = (op2_val.udiv(two))-1;
+                        Instruction *new_inst = BinaryOperator::Create(Instruction::Shl, op1, divisor);
+                        ReplaceInstWithInst(ins, new_inst);
+                        // ins->replaceAllUsesWith(new_inst);
+                        strength_opt_count += 1;
+                    }
+                }
+            }
+            else if (ins->getOpcode()==Instruction::SDiv)
+            {
+                Value *op2 = ins->getOperand(1);
+                const APInt two = 2;
+                else if (auto op2Cint = dyn_cast<ConstantInt>(op2))
+                {
+                    APInt op2_val = op2Cint->getValue();
+                    if(op2_val.urem(two) == 0)
+                    {
+                        APInt divisor = (op2_val.udiv(two))-1;
+                        Instruction *new_inst = BinaryOperator::Create(Instruction::AShr, op1, divisor);
                         ins->replaceAllUsesWith(new_inst);
                         strength_opt_count += 1;
                     }
