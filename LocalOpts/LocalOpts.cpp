@@ -28,7 +28,9 @@ private:
             // check if the operand in a multiple of 2
             // switch to right or left shift.
             Instruction *ins = &(*iter);
-            if(ins->getOpcode == Instruction::BinaryOps::Mul)
+            const Instruction::BinaryOps mul = Instruction::BinaryOps::Mul;
+            const Instruction::BinaryOps sdiv =  Instruction::BinaryOps::SDiv;
+            if(ins->getOpcode == mul)
             {
                 Value *op1 = ins->getOperand(0);
                 Value *op2 = ins->getOperand(1);
@@ -40,7 +42,7 @@ private:
                     if(op1_val.urem(two) == 0)
                     {
                         APInt divisor = (op1_val.udiv(two))-1;
-                        Value *val = ConstantInt::get(op1->getType(), divisor.getValue());
+                        Value *val = ConstantInt::get(op1->getType(), *(divisor.getRawData()));
                         Instruction *new_inst = BinaryOperator::Create(shl, op2, val);
                         ReplaceInstWithInst(ins, new_inst);
                         // ins->replaceAllUsesWith(new_inst);
@@ -54,7 +56,7 @@ private:
                     if(op2_val.urem(two) == 0)
                     {
                         APInt divisor = (op2_val.udiv(two))-1;
-                        Value *val = ConstantInt::get(op2->getType(), divisor.getValue());
+                        Value *val = ConstantInt::get(op2->getType(), *(divisor.getRawData()));
                         Instruction *new_inst = BinaryOperator::Create(shl, op1, val);
                         ReplaceInstWithInst(ins, new_inst);
                         // ins->replaceAllUsesWith(new_inst);
@@ -62,7 +64,7 @@ private:
                     }
                 }
             }
-            else if (ins->getOpcode()== Instruction::BinaryOps::SDiv)
+            else if (ins->getOpcode()== sdiv)
             {
                 Instruction::BinaryOps ashr = Instruction::BinaryOps::AShr;
                 Value *op2 = ins->getOperand(1);
@@ -73,7 +75,7 @@ private:
                     if(op2_val.urem(two) == 0)
                     {
                         APInt divisor = (op2_val.udiv(two))-1;
-                        Value *val = ConstantInt::get(op2->getType(), divisor.getValue());
+                        Value *val = ConstantInt::get(op2->getType(), *(divisor.getRawData()));
                         Instruction *new_inst = BinaryOperator::Create(ashr, op1, val);
                         ins->replaceAllUsesWith(new_inst);
                         strength_opt_count += 1;
