@@ -28,9 +28,7 @@ private:
             // check if the operand in a multiple of 2
             // switch to right or left shift.
             Instruction *ins = &(*iter);
-            const Instruction::BinaryOps mul = Instruction::BinaryOps::Mul;
-            const Instruction::BinaryOps sdiv =  Instruction::BinaryOps::SDiv;
-            if(ins->getOpcode == mul)
+            if(isa<llvm::MulInst>(ins))
             {
                 Value *op1 = ins->getOperand(0);
                 Value *op2 = ins->getOperand(1);
@@ -64,7 +62,7 @@ private:
                     }
                 }
             }
-            else if (ins->getOpcode()== sdiv)
+            else if (isa<llvm::SDiv>(ins))
             {
                 Instruction::BinaryOps ashr = Instruction::BinaryOps::AShr;
                 Value *op2 = ins->getOperand(1);
