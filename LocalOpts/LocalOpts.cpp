@@ -32,7 +32,7 @@ private:
             {
                 Value *op1 = ins->getOperand(0);
                 Value *op2 = ins->getOperand(1);
-                Instruction::BinaryOps shl = Shl;
+                Instruction::BinaryOps shl = Instruction::BinaryOps::Shl;
                 const APInt two = 2;
                 if (auto op1Cint = dyn_cast<ConstantInt>(op1))
                 {
@@ -62,7 +62,7 @@ private:
             }
             else if (ins->getOpcode()== bitc::BINOP_SDIV)
             {
-                Instruction::BinaryOps ashr = AShr;
+                Instruction::BinaryOps ashr = Instruction::BinaryOps::AShr;
                 Value *op2 = ins->getOperand(1);
                 const APInt two = 2;
                 else if (auto op2Cint = dyn_cast<ConstantInt>(op2))
